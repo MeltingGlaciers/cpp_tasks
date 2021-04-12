@@ -8,15 +8,13 @@ Class::Class(string str, AccessModifier am, ClassType ct):CodeElement(str)
 
 	this->am = am;
 	this->ct = ct;
+	elements.reserve(15);
 }
 
 Class::~Class()
 {
-	extends.clear();
-	implements.clear();
-	fields.clear();
-	properties.clear();
-	methods.clear();
+	for (CodeElement* ce : elements)
+		delete ce;
 }
 
 void Class::extend(Class* cls)
@@ -31,61 +29,24 @@ void Class::implement(Class* cls)
 	else throw exception();
 }
 
-void Class::addField(Field* field)
+void Class::addElement(CodeElement* ce)
 {
-	fields.push_back(field);
+	elements.push_back(ce);
 }
 
-void Class::addProperty(Property* prop)
+void Class::deleteElement(int idx)
 {
-	properties.push_back(prop);
+	elements.erase(elements.begin() + idx);
 }
 
-void Class::addMethod(Method* meth)
+CodeElement* Class::getElementAt(int idx)
 {
-	methods.push_back(meth);
+	return elements.at(idx);
 }
 
-void Class::deleteField(int idx)
+int Class::getElementAmount()
 {
-	fields.erase(fields.begin() + idx);
-}
-
-void Class::deleteProperty(int idx)
-{
-	properties.erase(properties.begin() + idx);
-}
-
-void Class::deleteMethod(int idx)
-{
-	methods.erase(methods.begin() + idx);
-}
-
-vector<Field*> Class::getFields()
-{
-	vector<Field*> newVec;
-
-	copy(fields.begin(), fields.end(), back_inserter(newVec));
-
-	return newVec;
-}
-
-vector<Property*> Class::getProperties()
-{
-	vector<Property*> newVec;
-
-	copy(properties.begin(), properties.end(), back_inserter(newVec));
-
-	return newVec;
-}
-
-vector<Method*> Class::getMethods()
-{
-	vector<Method*> newVec;
-
-	copy(methods.begin(), methods.end(), back_inserter(newVec));
-
-	return newVec;
+	return elements.size();
 }
 
 string Class::toString()
@@ -96,29 +57,27 @@ string Class::toString()
 		str.append(AccessModifierToString(am)).append(" ");
 
 	str.append(ClassTypeToString(ct));
-	if (extends.size() != 0) {
+	
+	str.append(" ").append(name);
+
+	if (extends.size() != 0 || implements.size() != 0)
 		str.append(": ");
+
+	if (extends.size() != 0) {
 		for (Class* c : extends)
 			str.append(c->getName()).append(",");
 	}
 	str.pop_back();
 
 	if (implements.size() != 0) {
-		str.append(": ");
 		for (Class* c : implements)
 			str.append(c->getName()).append(",");
 	}
 	str.pop_back();
+	str.append("{\n");
 
-
-	str.append(" ").append(name).append("{\n");
-
-	for (Property* prop : properties)
-		str.append(prop->toString()).append("\n");
-	for (Field* field : fields)
-		str.append(field->toString()).append("\n");
-	for (Method* meth : methods)
-		str.append(meth->toString()).append("\n");;
+	for (CodeElement* ce : elements)
+		str.append(ce->toString()).append("\n");
 
 	str.append("}");
 	return str;

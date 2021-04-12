@@ -1,12 +1,13 @@
 #include "NameSpace.h"
 
 NameSpace::NameSpace(string str) : CodeElement(str){
-
+	classes.reserve(20);
 }
 
 NameSpace::~NameSpace()
 {
-	classes.clear();
+	for (Class* c : classes)
+		delete c;
 }
 
 void NameSpace::addClass(Class* cls)
@@ -14,14 +15,14 @@ void NameSpace::addClass(Class* cls)
 	classes.push_back(move(cls));
 }
 
-vector<Class*> NameSpace::getClasses()
+int NameSpace::getClassAmount()
 {
-	vector<Class*> newVec;
+	return classes.size();
+}
 
-	for (Class* c : classes)
-		newVec.push_back(c);
-
-	return newVec;
+Class* NameSpace::getClassAt(int idx)
+{
+	return classes.at(idx);
 }
 
 void NameSpace::deleteClass(int idx)

@@ -14,7 +14,9 @@ public:
 
     void addClass(Class*);
 
-    vector<Class*> getClasses();
+    int getClassAmount();
+
+    Class* getClassAt(int);
 
     void deleteClass(int);
 

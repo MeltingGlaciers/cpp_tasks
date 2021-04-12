@@ -19,7 +19,6 @@ int Controller::readIdx(string str, int bound)
 	int idx = stoi(str);
 	if (idx != 0) {
 		if (bound > idx - 1) {
-			cout << idx - 1 << endl;
 			return idx - 1;
 		}
 		else
@@ -29,12 +28,25 @@ int Controller::readIdx(string str, int bound)
 		return -2;
 }
 
+void Controller::testRun()
+{
+	NameSpace nsp("123");
+	namespaces.push_back(nsp);
+	ns = &namespaces.at(0);
+	Class* i = new Class("inter", NO_MODIF, INTERFACE);
+	Class* c = new Class("cls", NO_MODIF, NO_TYPE);
+	ns->addClass(i);
+	ns->addClass(c);
+	cls = c;
+	addImplementation();
+	addImplementation();
+	cout<<cls->toString();
+
+
+}
+
 void Controller::run()
 {
-	classes.reserve(20);
-	fields.reserve(40);
-	props.reserve(40);
-	meths.reserve(40);
 
 	cout << "First of all, create namespace\n";
 	createNS();
@@ -131,15 +143,21 @@ void Controller::seeAllNS()
 	}
 }
 
-void Controller::nsLevel()
+void Controller::nsLevelHelp()
 {
-	cout << "<<<NameSpace " << ns->getName() << ">>>\n";
 	cout << "a: see all classes\n";
 	cout << "c: create class\n";
 	cout << "i -<num>: select class\n";
 	cout << "d -<num>: delete class\n";
 	cout << "b: back\n";
 	cout << "s: print code\n";
+	cout << "h: help\n";
+}
+
+void Controller::nsLevel()
+{
+	cout << "<<<NameSpace " << ns->getName() << ">>>\n";
+	nsLevelHelp();
 	string c;
 	int idx;
 	bool input = true;
@@ -158,7 +176,7 @@ void Controller::nsLevel()
 			createCls();
 			break;
 		case 'i':
-			idx = readIdxAsParameter(c, ns->getClasses().size());
+			idx = readIdxAsParameter(c, ns->getClassAmount());
 			switch (idx) {
 			case -1:
 				cout << "out of bounds\n";
@@ -171,7 +189,7 @@ void Controller::nsLevel()
 			}
 			break;
 		case 'd':
-			idx = readIdxAsParameter(c, ns->getClasses().size());
+			idx = readIdxAsParameter(c, ns->getClassAmount());
 			switch (idx) {
 			case -1:
 				cout << "out of bounds\n";
@@ -192,6 +210,9 @@ void Controller::nsLevel()
 			nsLevel();
 			input = !input;
 			break;
+		case 'h':
+			nsLevelHelp();
+			break;
 		default:
 			cout << "invalid input\n";
 			break;
@@ -201,9 +222,7 @@ void Controller::nsLevel()
 
 void Controller::deleteCls(int idx)
 {
-	Class* c = ns->getClasses().at(idx);
 	ns->deleteClass(idx);
-	classes.erase(classes.begin() + (c - &classes[0]));
 }
 
 void Controller::createCls()
@@ -274,58 +293,54 @@ void Controller::createCls()
 
 	}
 
-	Class cls(name, am, ct);
-	classes.push_back(cls);
-	ns->addClass(&classes.back());
+	Class* cls = new Class(name, am, ct);
+	ns->addClass(cls);
 	cin.ignore();
-
 }
 
 void Controller::selectCls(int idx)
 {
-	cls = ns->getClasses().at(idx);
+	cls = ns->getClassAt(idx);
 	classLevel();
 }
 
 void Controller::seeAllClasses()
 {
-	int i = 1;
 	cout << "Classes:\n";
-	for (Class* cls : ns->getClasses()) {
-		cout << i << ": " << cls->getName() << endl;
-		i++;
+	for (int i = 0; i < ns->getClassAmount();i++) {
+		cout << i+1 << ": " << ns->getClassAt(i)->getName() << endl;
 	}
 }
 
 void Controller::seeAllClasses(int idx)
 {
-	int i = 1;
 	cout << "Classes:\n";
-	for (Class* cls : namespaces.at(idx).getClasses()) {
-		cout << i << ": " << cls->getName() << endl;
-		i++;
+	for (int i = 0; i < namespaces.at(idx).getClassAmount(); i++) {
+		cout << i + 1 << ": " << namespaces.at(idx).getClassAt(i)->getName() << endl;
 	}
+}
+
+void Controller::classLevelHelp()
+{
+	cout << "f: see all elements\n";
+	cout << "l: create field\n";
+	cout << "v: create property\n";
+	cout << "o: create method\n";
+	cout << "i: implement\n";
+	cout << "e: extend\n";
+	cout << "t -<num>: select element\n";
+	cout << "n -<num>: delete implementation\n";
+	cout << "k -<num>: delete extension\n";
+	cout << "d -<num>: delete element\n";
+	cout << "b: back\n";
+	cout << "s: print code\n";
+	cout << "h: help\n";
 }
 
 void Controller::classLevel()
 {
 	cout << "<<<Class " << cls->getName() << ">>>\n";
-	cout << "f: see all fields\n";
-	cout << "p: see all properties\n";
-	cout << "m: see all methods\n";
-	cout << "l: create field\n";
-	cout << "v: create property\n";
-	cout << "o: create method\n";
-	cout << "h: implement\n";
-	cout << "j: extend\n";
-	cout << "t -<num>: select method\n";
-	cout << "n -<num>: delete implementation\n";
-	cout << "k -<num>: delete extension\n";
-	cout << "i -<num>: delete field\n";
-	cout << "r -<num>: delete property\n";
-	cout << "e -<num>: delete methods\n";
-	cout << "b: back\n";
-	cout << "s: print code\n";
+	classLevelHelp();
 
 	string c;
 	int idx;
@@ -339,13 +354,7 @@ void Controller::classLevel()
 		switch (c.at(0)) {
 
 		case 'f':
-			seeAllFields();
-			break;
-		case 'p':
-			seeAllProperties();
-			break;
-		case 'm':
-			seeAllMethods();
+			seeAllElements();
 			break;
 		case 'l':
 			createField();
@@ -356,14 +365,14 @@ void Controller::classLevel()
 		case 'o':
 			createMethod();
 			break;
-		case 'h':
+		case 'i':
 			addImplementation();
 			break;
-		case 'j':
+		case 'e':
 			addExtension();
 			break;
 		case 't':
-			idx = readIdxAsParameter(c, cls->getMethods().size());
+			idx = readIdxAsParameter(c, cls->getElementAmount());
 			switch (idx) {
 			case -1:
 				cout << "out of bounds\n";
@@ -372,12 +381,12 @@ void Controller::classLevel()
 				cout << "invalid paramater\n";
 				break;
 			default:
-				selectMethod(idx);
+				selectElement(idx);
 				break;
 			}
 			break;
-		case 'i':
-			idx = readIdxAsParameter(c, cls->getFields().size());
+		case 'd':
+			idx = readIdxAsParameter(c, cls->getElementAmount());
 			switch (idx) {
 			case -1:
 				cout << "out of bounds\n";
@@ -386,37 +395,7 @@ void Controller::classLevel()
 				cout << "invalid paramater\n";
 				break;
 			default:
-				deleteField(idx);
-				input = false;
-				break;
-			}
-			break;
-		case 'r':
-			idx = readIdxAsParameter(c, cls->getProperties().size());
-			switch (idx) {
-			case -1:
-				cout << "out of bounds\n";
-				break;
-			case -2:
-				cout << "invalid paramater\n";
-				break;
-			default:
-				deleteProperty(idx);
-				input = false;
-				break;
-			}
-			break;
-		case 'e':
-			idx = readIdxAsParameter(c, cls->getMethods().size());
-			switch (idx) {
-			case -1:
-				cout << "out of bounds\n";
-				break;
-			case -2:
-				cout << "invalid paramater\n";
-				break;
-			default:
-				deleteMethod(idx);
+				deleteElement(idx);
 				input = false;
 				break;
 			}
@@ -427,6 +406,9 @@ void Controller::classLevel()
 			break;
 		case 's':
 			cout << cls->toString() << endl;
+			break;
+		case 'h':
+			classLevelHelp();
 			break;
 		default:
 			cout << "invalid input\n";
@@ -461,7 +443,7 @@ void Controller::addImplementation()
 			seeAllClasses(idx);
 			while (input) {
 				cin >> c;
-				idx = readIdx(c, n->getClasses().size());
+				idx = readIdx(c, n->getClassAmount());
 				switch (idx) {
 				case -1:
 					cout << "out of bounds\n";
@@ -470,7 +452,7 @@ void Controller::addImplementation()
 					cout << "invalid input\n";
 					break;
 				default:
-					cs = n->getClasses().at(idx);
+					cs = n->getClassAt(idx);
 					try {
 						cls->implement(cs);
 					}
@@ -515,7 +497,7 @@ void Controller::addExtension()
 			seeAllClasses(idx);
 			while (input) {
 				cin >> c;
-				idx = readIdx(c, n->getClasses().size());
+				idx = readIdx(c, n->getClassAmount());
 				switch (idx) {
 				case -1:
 					cout << "out of bounds\n";
@@ -524,7 +506,7 @@ void Controller::addExtension()
 					cout << "invalid input\n";
 					break;
 				default:
-					cs = n->getClasses().at(idx);
+					cs = n->getClassAt(idx);
 
 					cls->extend(cs);
 
@@ -540,25 +522,12 @@ void Controller::addExtension()
 	}
 }
 
-void Controller::seeAllFields()
+void Controller::seeAllElements()
 {
-	int i = 1;
-	for (Field* f : cls->getFields())
-		cout << i << ": " << f->getName() << endl;
-}
-
-void Controller::seeAllProperties()
-{
-	int i = 1;
-	for (Property* p : cls->getProperties())
-		cout << i << ": " << p->getName() << endl;
-}
-
-void Controller::seeAllMethods()
-{
-	int i = 1;
-	for (Method* m : cls->getMethods())
-		cout << i << ": " << m->getName() << endl;
+	cout << "Elements:\n";
+	for (int i=0;i<cls->getElementAmount();i++)
+		cout << i+1 << ": " << cls->getElementAt(i)->getName() << endl;
+		
 }
 
 void Controller::createField()
@@ -622,9 +591,8 @@ void Controller::createField()
 			break;
 		}
 	}
-	Field f(name, type, am, isStatic);
-	fields.push_back(f);
-	cls->addField(&fields.back());
+	Field* f = new Field(name, type, am, isStatic);
+	cls->addElement(f);
 	cin.ignore();
 }
 
@@ -689,9 +657,8 @@ void Controller::createMethod()
 			break;
 		}
 	}
-	Method m(name, type, am, isStatic);
-	meths.push_back(m);
-	cls->addMethod(&meths.back());
+	Method* m = new Method(name, type, am, isStatic);
+	cls->addElement(m);
 	cin.ignore();
 }
 
@@ -756,47 +723,41 @@ void Controller::createProperty()
 			break;
 		}
 	}
-	Property f(name, type, am, isStatic);
-	props.push_back(f);
-	cls->addField(&props.back());
+	Property* p = new Property(name, type, am, isStatic);
+	cls->addElement(p);
 	cin.ignore();
 }
 
-void Controller::deleteField(int idx)
+void Controller::deleteElement(int idx)
 {
-	Field* f = cls->getFields().at(idx);
-	cls->deleteField(idx);
-	fields.erase(fields.begin() + (f - &fields[0]));
+	cls->deleteElement(idx);
 }
 
-void Controller::deleteProperty(int idx)
+void Controller::selectElement(int idx)
 {
-	Property* p = cls->getProperties().at(idx);
-	cls->deleteProperty(idx);
-	props.erase(props.begin() + (p - &props[0]));
+	try {
+		meth = dynamic_cast<Method*>(cls->getElementAt(idx));
+		methodLevel();
+	}
+	catch (const bad_cast& e) {
+		cout << "Only methods can be chosen as context\n";
+	}
 }
 
-void Controller::deleteMethod(int idx)
+void Controller::methodLevelHelp()
 {
-	Method* m = cls->getMethods().at(idx);
-	cls->deleteProperty(idx);
-	meths.erase(meths.begin() + (m - &meths[0]));
-}
-
-void Controller::selectMethod(int idx)
-{
-	meth = cls->getMethods().at(idx);
-	methodLevel();
-}
-
-void Controller::methodLevel()
-{
-	cout << "<<<Method " << meth->getName() << ">>>\n";
 	cout << "a: see all parameters\n";
 	cout << "c: add parameter\n";
 	cout << "d -<num>: delete parameter\n";
 	cout << "b: back\n";
 	cout << "s: print code\n";
+	cout << "h: help\n";
+}
+
+void Controller::methodLevel()
+{
+	cout << "<<<Method " << meth->getName() << ">>>\n";
+	methodLevelHelp();
 	string c;
 	int idx;
 	bool input = true;
@@ -815,7 +776,7 @@ void Controller::methodLevel()
 			addParameter();
 			break;
 		case 'd':
-			idx = readIdxAsParameter(c, cls->getMethods().size());
+			idx = readIdxAsParameter(c, cls->getElementAmount());
 			switch (idx) {
 			case -1:
 				cout << "out of bounds\n";
@@ -835,6 +796,9 @@ void Controller::methodLevel()
 		case 's':
 			cout << meth->toString() << endl;
 			break;
+		case 'h':
+			methodLevelHelp();
+			break;
 		default:
 			cout << "invalid input\n";
 			break;
@@ -845,8 +809,8 @@ void Controller::methodLevel()
 void Controller::seeAllParameters()
 {
 	int i = 1;
-	for (Parameter p : meth->getParameters())
-		cout << i << ": " << p.getName() << endl;
+	for (Parameter* p : meth->getParameters())
+		cout << i << ": " << p->getName() << endl;
 }
 
 void Controller::addParameter()
@@ -860,7 +824,7 @@ void Controller::addParameter()
 	cin.clear();
 	getline(cin, type);
 
-	Parameter p(name, type);
+	Parameter* p = new Parameter(name, type);
 	meth->addParameter(p);
 }
 

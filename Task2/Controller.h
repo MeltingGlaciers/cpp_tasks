@@ -13,10 +13,6 @@ using namespace std;
 class Controller {
 
 	vector<NameSpace> namespaces;
-	vector<Class> classes;
-	vector<Field> fields;
-	vector<Property> props;
-	vector<Method> meths;
 	NameSpace* ns;
 	Class* cls;
 	Method* meth;
@@ -27,6 +23,8 @@ public:
 	int readIdxAsParameter(string, int);
 
 	int readIdx(string , int);
+
+	void testRun();
 
 	void run();
 
@@ -40,6 +38,8 @@ public:
 
 	void seeAllNS();
 
+	void nsLevelHelp();
+
 	void nsLevel();
 
 	void deleteCls(int);
@@ -52,17 +52,15 @@ public:
 
 	void seeAllClasses(int);
 
+	void classLevelHelp();
+
 	void classLevel();
 
 	void addImplementation();
 
 	void addExtension();
 
-	void seeAllFields();
-
-	void seeAllProperties();
-
-	void seeAllMethods();
+	void seeAllElements();
 
 	void createField();
 
@@ -70,13 +68,11 @@ public:
 
 	void createProperty();
 
-	void deleteField(int);
-
-	void deleteProperty(int);
-
-	void deleteMethod(int);
+	void deleteElement(int);
 	
-	void selectMethod(int);
+	void selectElement(int);
+
+	void methodLevelHelp();
 
 	void methodLevel();
 

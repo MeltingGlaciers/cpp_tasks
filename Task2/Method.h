@@ -10,20 +10,20 @@ private:
     std::string returnType;
     AccessModifier am;
     bool isStatic;
-    vector<Parameter> input;
-    int size = 0;
-    int paramCount=0;
+    vector<Parameter*> input;
 
 public:
     Method(std::string name, std::string returnType, AccessModifier am, bool isStatic);
 
-    void addParameter(Parameter);
+    ~Method();
+
+    void addParameter(Parameter*);
 
     void deleteParameter(int);
 
     std::string getReturnType();
 
-    vector<Parameter> getParameters();
+    vector<Parameter*> getParameters();
 
     std::string toString();
 

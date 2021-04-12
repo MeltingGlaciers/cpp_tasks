@@ -16,9 +16,7 @@ private:
     vector<Class*> extends;
     vector<Class*> implements;
     ClassType ct;
-    vector<Field*> fields;
-    vector<Property*> properties;
-    vector<Method*> methods;
+    vector<CodeElement*> elements; //dynamic cast
 
 public:
 
@@ -29,24 +27,13 @@ public:
 
     void implement(Class*);
 
-    void addField(Field*);
+    void addElement(CodeElement*);
 
-    void addProperty(Property*);
+    void deleteElement(int);
 
+    CodeElement* getElementAt(int);
 
-    void addMethod(Method*);
-
-    void deleteField(int);
-
-    void deleteProperty(int);
-
-    void deleteMethod(int);
-
-    vector<Field*> getFields();
-
-    vector<Property*> getProperties();
-
-    vector<Method*> getMethods();
+    int getElementAmount();
 
     string toString();
 

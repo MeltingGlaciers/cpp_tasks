@@ -9,7 +9,14 @@ Method::Method(string name, string returnType, AccessModifier am, bool isStatic)
 
 }
 
-void Method::addParameter(Parameter param) {
+Method::~Method()
+{
+    for (Parameter* p : input)
+        delete p;
+
+}
+
+void Method::addParameter(Parameter* param) {
     input.push_back(param);
 }
 
@@ -22,8 +29,8 @@ std::string Method::getReturnType() {
     return returnType;
 }
 
-vector<Parameter> Method::getParameters() {
-    vector<Parameter> newVec;
+vector<Parameter*> Method::getParameters() {
+    vector<Parameter*> newVec;
 
     copy(input.begin(), input.end(), back_inserter(newVec));
     return newVec;
@@ -40,7 +47,7 @@ string Method::toString() {
     str.append(returnType + " " + name + "(");
 
     for (int i = 0; i < input.size(); i++) {
-        str.append(input.at(i).toString() + ", ");
+        str.append(input.at(i)->toString() + ", ");
     }
     str.pop_back();
     str.pop_back();
