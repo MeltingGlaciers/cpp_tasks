@@ -66,14 +66,15 @@ string Class::toString()
 	if (extends.size() != 0) {
 		for (Class* c : extends)
 			str.append(c->getName()).append(",");
+		str.pop_back();
 	}
-	str.pop_back();
 
 	if (implements.size() != 0) {
 		for (Class* c : implements)
 			str.append(c->getName()).append(",");
+
+		str.pop_back();
 	}
-	str.pop_back();
 	str.append("{\n");
 
 	for (CodeElement* ce : elements)

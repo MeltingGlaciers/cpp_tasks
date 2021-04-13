@@ -44,7 +44,7 @@ string Method::toString() {
     if (isStatic)
         str.append("static ");
 
-    str.append(returnType + " " + name + "(");
+    str.append(returnType).append(" ").append(name).append("(");
 
     for (int i = 0; i < input.size(); i++) {
         str.append(input.at(i)->toString() + ", ");

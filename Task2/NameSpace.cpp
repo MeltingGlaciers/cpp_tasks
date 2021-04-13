@@ -12,7 +12,7 @@ NameSpace::~NameSpace()
 
 void NameSpace::addClass(Class* cls)
 {
-	classes.push_back(move(cls));
+	classes.push_back(cls);
 }
 
 int NameSpace::getClassAmount()

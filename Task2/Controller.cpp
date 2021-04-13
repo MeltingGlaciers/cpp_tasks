@@ -135,11 +135,9 @@ void Controller::selectNS(int idx)
 
 void Controller::seeAllNS()
 {
-	int i = 1;
 	cout << "Namespaces:\n";
-	for (NameSpace ns : namespaces) {
-		cout << i << ": " << ns.getName() << endl;
-		i++;
+	for (int i = 0; i < namespaces.size(); i++) {
+		cout << i + 1 << ": " << namespaces.at(i).getName() << endl;
 	}
 }
 
@@ -202,7 +200,7 @@ void Controller::nsLevel()
 			}
 			break;
 		case 'b':
-			ns = NULL;
+			//ns = NULL;
 			input = false;
 			break;
 		case 's':
@@ -293,8 +291,8 @@ void Controller::createCls()
 
 	}
 
-	Class* cls = new Class(name, am, ct);
-	ns->addClass(cls);
+	Class* createdClass = new Class(name, am, ct);
+	ns->addClass(createdClass);
 	cin.ignore();
 }
 
@@ -315,7 +313,9 @@ void Controller::seeAllClasses()
 void Controller::seeAllClasses(int idx)
 {
 	cout << "Classes:\n";
-	for (int i = 0; i < namespaces.at(idx).getClassAmount(); i++) {
+	NameSpace* nsp = &namespaces.at(idx);
+	for (int i = 0; i < nsp->getClassAmount(); i++) {
+		Class* c = nsp->getClassAt(i);
 		cout << i + 1 << ": " << namespaces.at(idx).getClassAt(i)->getName() << endl;
 	}
 }
@@ -569,15 +569,16 @@ void Controller::createField()
 			break;
 		default:
 			cout << "invalid input\n";
+			cin.ignore();
 			break;
 		}
 
 	}
 	cout << "Is static? (y/n)\n";
 	bool isStatic = false;
-	cin >> c;
 	input = true;;
 	while (input) {
+		cin >> c;
 		switch (c) {
 		case 'y':
 			isStatic = true;
@@ -641,9 +642,9 @@ void Controller::createMethod()
 	}
 	cout << "Is static? (y/n)\n";
 	bool isStatic = false;
-	cin >> c;
 	input = true;;
 	while (input) {
+		cin >> c;
 		switch (c) {
 		case 'y':
 			isStatic = true;
@@ -707,9 +708,9 @@ void Controller::createProperty()
 	}
 	cout << "Is static? (y/n)\n";
 	bool isStatic = false;
-	cin >> c;
-	input = true;;
+	input = true;
 	while (input) {
+		cin >> c;
 		switch (c) {
 		case 'y':
 			isStatic = true;
@@ -790,7 +791,7 @@ void Controller::methodLevel()
 			}
 			break;
 		case 'b':
-			ns = NULL;
+			//ns = NULL;
 			input = false;
 			break;
 		case 's':
